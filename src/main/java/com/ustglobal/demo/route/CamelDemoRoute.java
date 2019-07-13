@@ -2,6 +2,7 @@ package com.ustglobal.demo.route;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -36,12 +37,31 @@ public class CamelDemoRoute extends RouteBuilder {
 		// @formatter:off
 		
 		// errorHandler(deadLetterChannel("seda:errorQueue").maximumRedeliveries(5).redeliveryDelay(1000));
-
-				
+		
+		//SELECT name FROM person WHERE id=1;
+		
+		//Table creation script
+		/*
+		
+		CREATE TABLE `person` (
+				`id` INT(11) NOT NULL AUTO_INCREMENT,
+				`Name` VARCHAR(5) NOT NULL,
+				PRIMARY KEY (`id`)
+			)
+			COLLATE='latin1_swedish_ci'
+			ENGINE=InnoDB
+			AUTO_INCREMENT=12
+			;
+		*/
+						
 		from("timer://dbQueryTimer?period=10s")
 		.routeId("DATABASE_QUERY_TIMER_ROUTE")
-		.to("sql:SELECT version()?dataSource=#dataSource")	
-		//.to("sql:SELECT version()?dataSource=#mydatasource")
+		.setBody(constant("{\"id\":1}"))
+		.unmarshal().json(JsonLibrary.Jackson)
+		.log("After unmarshal body:${body}")
+		.log("unmarshal body type:${body.class.name}")
+		//.to("sql:SELECT version()?dataSource=#dataSource")	
+		.to("sql:SELECT name FROM person WHERE id=:#id?dataSource=#dataSource")
 		.log(LoggingLevel.INFO,"******Database query executed - body:${body}******");
 		
 		
