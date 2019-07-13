@@ -42,7 +42,7 @@ public class CamelDemoRoute extends RouteBuilder {
 		.routeId("DATABASE_QUERY_TIMER_ROUTE")
 		.to("sql:SELECT version()?dataSource=#dataSource")	
 		//.to("sql:SELECT version()?dataSource=#mydatasource")
-		.log(LoggingLevel.INFO,"******Database query executed******");
+		.log(LoggingLevel.INFO,"******Database query executed - body:${body}******");
 		
 		
 		// @formatter:on
